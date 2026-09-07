@@ -22,6 +22,18 @@ const razorpay = new Razorpay({
 app.get('/', (req, res) => {
   res.send('BizPilot AI Backend is running live!');
 });
+// Gemini AI Route
+app.post('/api/generate', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    res.json({ success: true, text: response.text() });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Start Server
 const PORT = process.env.PORT || 10000;
