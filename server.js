@@ -34,6 +34,20 @@ app.post('/api/generate', async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+// Razorpay Payment Route
+app.post('/api/create-order', async (req, res) => {
+  try {
+    const options = {
+      amount: req.body.amount * 100, // Amount in paise
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`
+    };
+    const order = await razorpay.orders.create(options);
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Start Server
 const PORT = process.env.PORT || 10000;
