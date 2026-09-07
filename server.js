@@ -18,10 +18,13 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Basic Health Check Route
+// Serve Frontend (index.html)
+app.use(express.static(__dirname));
+
 app.get('/', (req, res) => {
-  res.send('BizPilot AI Backend is running live!');
+  res.sendFile(__dirname + '/index.html');
 });
+
 // Gemini AI Route
 app.post('/api/generate', async (req, res) => {
   try {
