@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BizPilot AI</title>
+  <!-- Razorpay Checkout Script -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+    textarea { width: 100%; height: 100px; margin-bottom: 10px; }
+    button { padding: 10px 20px; background: #0070f3; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .box { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+  <h1>BizPilot AI</h1>
+
+  <!-- Gemini AI Section -->
+  <div class="box">
+    <h2>Generate Content</h2>
+    <textarea id="aiPrompt" placeholder="Enter your business prompt..."></textarea><br>
+    <button onclick="generateAI()">Generate Text</button>
+    <p id="aiOutput"></p>
+  </div>
+
+  <!-- Razorpay Payment Section -->
+  <div class="box">
+    <h2>Upgrade Plan</h2>
+    <button onclick="payNow()">Pay ₹500</button>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'https://bizpilot-ai-pt-1.onrender.com';
+
+    // 1. Send Prompt to Live Gemini Route
+    async function generateAI() {
+      const prompt = document.getElementById('aiPrompt').value;
+      const output = document.getElementById('aiOutput');
+      output.innerText = 'Generating...';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: prompt })
+        });
+        const data = await response.json();
+        output.innerText = data.text || data.error;
+      } catch (err) {
+        output.innerText = 'Error generating content.';
+      }
+    }
+
+    // 2. Trigger Real Razorpay Checkout
+    async function payNow() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/create-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: 500 })
+        });
+        const order = await response.json();
+
+        const options = {
+          key: "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Razorpay Key ID
+          amount: order.amount,
+          currency: order.currency,
+          name: "BizPilot AI",
+          description: "Pro Subscription",
+          order_id: order.id,
+          handler: function (res) {
+            alert("Payment Successful! Payment ID: " + res.razorpay_payment_id);
+          }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        alert("Payment setup failed.");
+      }
+    }
+  </script>
+</body>
+</html>
+
